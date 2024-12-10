@@ -6,6 +6,13 @@
 
 * Overview: https://minitorch.github.io/module4.html
 
+# MiniTorch Module 4
+
+* Training Logs:
+
+  * [MNIST Logs](mnist.txt)
+  * [Sentiment Logs](sentiment.txt)
+
 This module requires `fast_ops.py`, `cuda_ops.py`, `scalar.py`, `tensor_functions.py`, `tensor_data.py`, `tensor_ops.py`, `operators.py`, `module.py`, and `autodiff.py` from Module 3.
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple
 
 
 class Module:
@@ -15,10 +15,6 @@ class Module:
 
     """
 
-    _modules: Dict[str, Module]
-    _parameters: Dict[str, Parameter]
-    training: bool
-
     def __init__(self) -> None:
         self._modules = {}
         self._parameters = {}
@@ -26,30 +22,49 @@ class Module:
 
     def modules(self) -> Sequence[Module]:
         """Return the direct child modules of this module."""
-        m: Dict[str, Module] = self.__dict__["_modules"]
+        m = self.__dict__["_modules"]
         return list(m.values())
 
     def train(self) -> None:
-        """Set the mode of this module and all descendent modules to `train`."""
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Set the mode of this module and all its descendent modules to `train`."""
+        self.training = True
+        for module in self.modules():
+            module.train()
 
     def eval(self) -> None:
-        """Set the mode of this module and all descendent modules to `eval`."""
-        raise NotImplementedError("Need to include this file from past assignment.")
+        """Set the mode of this module and all its descendent modules to `eval`."""
+        self.training = False
+        for module in self.modules():
+            module.eval()
 
     def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
         """Collect all the parameters of this module and its descendents.
 
         Returns
         -------
-            The name and `Parameter` of each ancestor parameter.
+            list of pairs: Contains the name and `Parameter` of each ancestor parameter.
 
         """
-        raise NotImplementedError("Need to include this file from past assignment.")
+        results = []
+        for name, param in self._parameters.items():
+            results.append((name, param))
+        for name, module in self._modules.items():
+            for subname, param in module.named_parameters():
+                results.append((f"{name}.{subname}", param))
+        return results
 
     def parameters(self) -> Sequence[Parameter]:
         """Enumerate over all the parameters of this module and its descendents."""
-        raise NotImplementedError("Need to include this file from past assignment.")
+        # TODO: Implement for Task 0.4.
+        param = []
+        for i in self._parameters.values():
+            param.append(i)
+
+        for m in self._modules.values():
+            m1 = m.parameters()
+            for j in m1:
+                param.append(j)
+        return param
 
     def add_parameter(self, k: str, v: Any) -> Parameter:
         """Manually add a parameter. Useful helper for scalar parameters.
@@ -65,36 +80,48 @@ class Module:
 
         """
         val = Parameter(v, k)
-        self.__dict__["_parameters"][k] = val
+        self._parameters[k] = val
         return val
 
     def __setattr__(self, key: str, val: Parameter) -> None:
         if isinstance(val, Parameter):
-            self.__dict__["_parameters"][key] = val
+            self._parameters[key] = val
         elif isinstance(val, Module):
-            self.__dict__["_modules"][key] = val
+            self._modules[key] = val
         else:
             super().__setattr__(key, val)
 
     def __getattr__(self, key: str) -> Any:
-        if key in self.__dict__["_parameters"]:
-            return self.__dict__["_parameters"][key]
+        if key in self._parameters:
+            return self._parameters[key]
 
-        if key in self.__dict__["_modules"]:
-            return self.__dict__["_modules"][key]
-        return None
+        if key in self._modules:
+            return self._modules[key]
+        return super().__getattribute__(key)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        """Call the module's forward method.
+
+        Args:
+        ----
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+        -------
+            Any: The result of the forward method.
+
+        """
         return self.forward(*args, **kwargs)
 
     def __repr__(self) -> str:
         def _addindent(s_: str, numSpaces: int) -> str:
-            s2 = s_.split("\n")
-            if len(s2) == 1:
+            s = s_.split("\n")
+            if len(s) == 1:
                 return s_
-            first = s2.pop(0)
-            s2 = [(numSpaces * " ") + line for line in s2]
-            s = "\n".join(s2)
+            first = s.pop(0)
+            s = [(numSpaces * " ") + line for line in s]
+            s = "\n".join(s)
             s = first + "\n" + s
             return s
 

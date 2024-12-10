@@ -35,7 +35,9 @@ class Conv1d(minitorch.Module):
 
     def forward(self, input):
         # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        out = minitorch.conv1d(input, self.weights.value) + self.bias.value
+        return out
+        # raise NotImplementedError("Need to implement for Task 4.5")
 
 
 class CNNSentimentKim(minitorch.Module):
@@ -61,15 +63,28 @@ class CNNSentimentKim(minitorch.Module):
     ):
         super().__init__()
         self.feature_map_size = feature_map_size
-        # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        # ASSIGN4.5
+        self.conv1 = Conv1d(embedding_size, feature_map_size, filter_sizes[0])
+        self.conv2 = Conv1d(embedding_size, feature_map_size, filter_sizes[1])
+        self.conv3 = Conv1d(embedding_size, feature_map_size, filter_sizes[2])
+        self.linear = Linear(feature_map_size, 1)
+        self.dropout = dropout
 
     def forward(self, embeddings):
         """
-        embeddings tensor: [batch x sentence length x embedding dim]
+            embeddings tensor: [batch x sentence length x embedding dim]
         """
-        # TODO: Implement for Task 4.5.
-        raise NotImplementedError("Need to implement for Task 4.5")
+        # permute embedding dim to input channels dim for conv layer
+        x = embeddings.permute(0, 2, 1)
+        x1 = self.conv1(x).relu()
+        x2 = self.conv2(x).relu()
+        x3 = self.conv3(x).relu()
+        # Max over each feature map
+        x = minitorch.max(x1, 2) + minitorch.max(x2, 2) + minitorch.max(x3, 2)
+        x = self.linear(x.view(x.shape[0], self.feature_map_size))
+        x = minitorch.dropout(x, self.dropout, ignore=not self.training)
+        # Apply sigmoid and view as batch size
+        return x.sigmoid().view(x.shape[0])
 
 
 # Evaluation helper methods
@@ -124,7 +139,7 @@ class SentenceSentimentTrain:
         data_train,
         learning_rate,
         batch_size=10,
-        max_epochs=500,
+        max_epochs=50,
         data_val=None,
         log_fn=default_log_fn,
     ):
