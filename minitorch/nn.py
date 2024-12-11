@@ -189,7 +189,7 @@ def dropout(input: Tensor, rate: float, ignore: bool = False) -> Tensor:
     Args:
     ----
         input: Tensor
-        p: float
+        rate: float
         ignore: bool
 
     Returns:
