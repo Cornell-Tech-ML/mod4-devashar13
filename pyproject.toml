@@ -31,7 +31,6 @@ reportIncompatibleMethodOverride = "none"
 reportPrivateUsage = "none"
 reportMissingParameterType = "error"
 
-
 [tool.pytest.ini_options]
 markers = [
     "task0_0",
@@ -60,8 +59,8 @@ markers = [
     "task4_3",
     "task4_4",
 ]
-[tool.ruff]
 
+[tool.ruff]
 exclude = [
     ".git",
     "__pycache__",
@@ -74,6 +73,7 @@ exclude = [
     "**/docs/**/*",
 ]
 
+[tool.ruff.lint]
 ignore = [
     "ANN101",
     "ANN401",
@@ -97,6 +97,7 @@ ignore = [
     "D213",
     "ANN204",
     "ANN102",
+    "D203",   # Added to avoid formatter conflicts
 ]
 select = ["D", "E", "F", "N", "ANN"]
 fixable = [
@@ -147,5 +148,5 @@ fixable = [
 ]
 unfixable = []
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D"]
