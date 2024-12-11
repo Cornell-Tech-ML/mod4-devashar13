@@ -31,7 +31,6 @@ reportIncompatibleMethodOverride = "none"
 reportPrivateUsage = "none"
 reportMissingParameterType = "error"
 
-
 [tool.pytest.ini_options]
 markers = [
     "task0_0",
@@ -60,8 +59,8 @@ markers = [
     "task4_3",
     "task4_4",
 ]
-[tool.ruff]
 
+[tool.ruff]
 exclude = [
     ".git",
     "__pycache__",
@@ -74,6 +73,8 @@ exclude = [
     "**/docs/**/*",
 ]
 
+# Lint configuration updated per new format
+[tool.ruff.lint]
 ignore = [
     "ANN101",
     "ANN401",
